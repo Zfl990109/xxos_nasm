@@ -85,10 +85,12 @@ loader:
     mov ebx, 0x0
     mov ecx, msg_len
     call print
+
     mov eax, ll
     mov ebx, 0x1
     mov ecx, ll_len
     call print
+
     mov eax, 2
     mov ebx, LOADER_ADDR
     mov ecx, 1

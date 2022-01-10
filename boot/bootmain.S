@@ -7,16 +7,28 @@ main:
     mov ebx, 0x2
     mov ecx, loader_len
     call print
+
     mov eax, 4
     mov ebx, KERNEL_BIN_ADDR
-    mov ecx, 10
+    mov ecx, 30
     call read_mem
+
     call kernel_init
+
     mov eax, kern_msg
     mov ebx, 0x3
     mov ecx, kern_msg_len
     call print
-    mov esp, KERNEL_ADDR
+
+
+    xor eax, eax
+    mov ebx, eax
+    mov ecx, eax
+    mov edx, eax
+
+    mov ax, select_code
+    mov ds, ax
+    mov esp, KERNEL_STACK
     jmp select_code:KERNEL_ADDR
 
 

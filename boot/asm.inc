@@ -33,3 +33,4 @@ PT_NULL             equ     0
 LOADER_ADDR         equ     0x900
 KERNEL_BIN_ADDR     equ     0x1000
 KERNEL_ADDR         equ     0x100000
+KERNEL_STACK        equ     0x9f000
