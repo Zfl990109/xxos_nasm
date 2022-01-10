@@ -79,6 +79,7 @@ loader:
     mov ds, ax
     mov es, ax
     mov ss, ax
+    mov fs, ax
     mov esp, LOADER_ADDR
 
     mov eax, msg
@@ -93,7 +94,7 @@ loader:
 
     mov eax, 2
     mov ebx, LOADER_ADDR
-    mov ecx, 1
+    mov ecx, 3
     call read_mem
 
     jmp select_code:LOADER_ADDR

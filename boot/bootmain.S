@@ -1,46 +1,109 @@
 %include "asm.inc"
 
-SECTION BOOTMAIN vstart=0x900
+SECTION BOOTMAIN vstart=LOADER_ADDR
 bits 32
 main:
-    mov eax, loader_msg
-    mov ebx, 0x2
-    mov ecx, loader_len
-    call print
-
-    mov eax, 4
+    mov esp, LOADER_ADDR
+    ; 读取内核
+    mov eax, 5
     mov ebx, KERNEL_BIN_ADDR
     mov ecx, 30
     call read_mem
 
-    call kernel_init
+    ; 开启分页
+    call setup_page
+    sgdt [gdt_base]
+    mov ebx, [gdt_base + 2]
+    or dword [ebx + 0x18 + 4], 0xc0000000
+    add dword [gdt_base + 2], 0xc0000000
+    add esp, 0xc0000000
+    mov eax, PDT_ADDR
+    mov cr3, eax
+    mov eax, cr0
+    or eax, 0x80000000
+    mov cr0, eax
+    lgdt [gdt_base]
+    mov eax, page_msg
+    mov ebx, 0x2
+    mov ecx, page_msg_len
+    call print
 
+    jmp select_code:enter_kernel
+
+enter_kernel:
+    call kernel_init
     mov eax, kern_msg
     mov ebx, 0x3
     mov ecx, kern_msg_len
     call print
-
-
-    xor eax, eax
-    mov ebx, eax
-    mov ecx, eax
-    mov edx, eax
-
-    mov ax, select_code
-    mov ds, ax
     mov esp, KERNEL_STACK
+    mov ax, select_code
     jmp select_code:KERNEL_ADDR
 
 
-    loader_msg: db "loader kernel..."
-    loader_len equ $ - loader_msg
+
+
+
+
+
+
+
+
+
+    page_msg: db "page table is established"
+    page_msg_len equ $ - page_msg
     kern_msg: db "kernel is inited!"
     kern_msg_len equ $ - kern_msg
+
+
+bits 32
+; ======================================================
+; setup_page 函数, 开启分页机制
+; ______________________________________________________
+setup_page:
+    mov ecx, 4096;
+    mov esi, 0
+    .clear_page_dir:                        ; 将页目录表所在空间全清 0
+        mov byte [PDT_ADDR + esi], 0
+        inc esi
+        loop .clear_page_dir
+    .create_pde:                            ; 创建页目录表
+        mov eax, PDT_ADDR
+        add eax, 0x1000
+        mov ebx, eax                        ; 此时 ebx 寄存器中的值为第一个页表所在的位置
+        or eax, PG_US_U | PG_RW_W | PG_P
+        mov [PDT_ADDR + 0x0], eax           ; 设置第一个页目录项
+        mov [PDT_ADDR + 0xc00], eax         ; 设置第 768 个页目录项(内核的第一个页目录项), 设置 3 GB 以上的内存空间的页目录表
+                                            ; 令第 768 个和第 1 个页目录项都指向第一个页表,
+                                            ; 保证高 1GB 内存空间中的操作系统能够映射到最低的 1GB空间中
+                                            ; 使得每个用户程序都能够与操作系统结合
+        sub eax, 0x1000
+        mov [PDT_ADDR + 4092], eax          ; 最后一个页目录项指向页目录表基址, 实现对页目录的访问
+    mov ecx, 256                            ; 二级页表中的页表项为 256 个, 1KB / 4 = 256
+    mov esi, 0
+    mov edx, PG_US_U | PG_RW_W | PG_P
+    .create_pte:                            ; 设置第一个页表, ebx 为第一个页表的基址
+        mov [ebx + esi * 4], edx            ; 第一个页表的中的第一个页表项从 0开始
+        add edx, 0x1000                     ; 每个页表项占 4 字节
+        inc esi
+        loop .create_pte
+
+    mov eax, PDT_ADDR                       ; 设置内核的其他页目录项
+    add eax, 0x2000                         ; eax 为第二个页表的位置
+    or eax, PG_US_U | PG_RW_W | PG_P
+    mov ebx, PDT_ADDR
+    mov ecx, 254
+    mov esi, 769
+    .create_kernel_pde:                     ; 创建内核的页目录项
+        mov [ebx + esi * 4], eax
+        inc esi
+        add eax, 0x1000
+        loop .create_kernel_pde
+    ret
 
 ; ======================================================
 ; print(char* str, uint_32 line, uint_32 len) 函数, str 表示字符串的起始位置, line 表示行数, len 表示字符串长度
 ; ______________________________________________________
-bits 32
 print:
     push eax
     push ebx

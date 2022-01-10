@@ -9,7 +9,7 @@ target/boot/bootmain.bin : boot/bootmain.S
 
 
 target/kern/kernel.bin : obj/kern/kernel_main.o obj/libs/print.o
-	ld -m elf_i386 $^ -Ttext 0x100000 -e main -o $@
+	ld -m elf_i386 $^ -Ttext 0xc0001500 -e main -o $@
 
 obj/libs/print.o : libs/print.S
 	nasm -Iboot/ -f elf -o $@ $^
@@ -24,8 +24,8 @@ obj/kern/kernel_main.o : kern/init/init.c
 
 install:
 	dd if=target/boot/bootblock.bin of=xxos.img bs=512 count=1 conv=notrunc
-	dd if=target/boot/bootmain.bin of=xxos.img bs=512 seek=2 count=1 conv=notrunc
-	dd if=target/kern/kernel.bin of=xxos.img bs=512 seek=4 count=30 conv=notrunc
+	dd if=target/boot/bootmain.bin of=xxos.img bs=512 seek=2 count=3 conv=notrunc
+	dd if=target/kern/kernel.bin of=xxos.img bs=512 seek=5 count=30 conv=notrunc
 
 run:
 	bochs -f bochsrc
