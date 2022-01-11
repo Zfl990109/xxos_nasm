@@ -2,7 +2,11 @@
 
 global print_char
 global print_str
+global print_int
 global reset_screen
+section .data
+print_int_buf dq 0
+
 section .text
 bits 32
 ; ======================================================
@@ -33,6 +37,57 @@ reset_screen:
     out dx, al
     popad
     ret
+; ======================================================
+; print_int 函数, 循环调用 print_char 来打印整数
+; ______________________________________________________
+print_int:
+    pushad
+    mov ebp, esp
+    mov eax, [ebp + 36]
+    mov edx, eax
+    mov edi, 7
+    mov ecx, 8
+    mov ebx, print_int_buf
+
+    .16based_4bits:
+        and edx, 0x0000000f
+        cmp edx, 9
+        jg .isA2F
+        add edx, '0'
+        jmp .store
+    .isA2F:
+        sub edx, 10
+        add edx, 'A'
+    .store:
+        mov [ebx+edi], dl
+        dec edi
+        shr eax, 4
+        mov edx, eax
+        loop .16based_4bits
+    .ready_to_print:
+        inc edi
+    .skip_prefix_0:
+        mov cl, [print_int_buf + edi]
+        inc edi
+        cmp cl, '0'
+        je .skip_prefix_0
+        dec edi
+        jmp .print_each_num
+
+    .full0:
+        mov cl, '0'
+    .print_each_num:
+        push ecx
+        call print_char
+        add esp, 4
+        inc edi
+        mov cl, [print_int_buf + edi]
+        cmp edi, 8
+        jl .print_each_num
+    popad
+    ret
+
+
 ; ======================================================
 ; print_str 函数, 循环调用 print_char 来打印字符串
 ; ______________________________________________________

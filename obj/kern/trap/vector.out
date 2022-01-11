@@ -1,0 +1,642 @@
+%line 1+1 kern/trap/vectors.S
+[bits 32]
+%line 4+1 kern/trap/vectors.S
+
+[extern print_str]
+
+[section .data]
+intr_str db "interrupt occur!", 0xa, 0
+[global intr_entry_table]
+intr_entry_table:
+
+%line 32+1 kern/trap/vectors.S
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x00_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x00_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x01_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x01_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x02_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x02_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x03_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x03_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x04_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x04_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x05_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x05_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x06_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x06_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x07_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x07_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x08_entry:
+ nop
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x08_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x09_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x09_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x0a_entry:
+ nop
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x0a_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x0b_entry:
+ nop
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x0b_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x0c_entry:
+ nop
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x0c_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x0d_entry:
+ nop
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x0d_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x0e_entry:
+ nop
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x0e_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x0f_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x0f_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x10_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x10_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x11_entry:
+ nop
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x11_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x12_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x12_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x13_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x13_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x14_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x14_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x15_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x15_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x16_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x16_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x17_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x17_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x18_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x18_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x19_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x19_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x1a_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x1a_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x1b_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x1b_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x1c_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x1c_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x1d_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x1d_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x1e_entry:
+ nop
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x1e_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x1f_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x1f_entry
+
+%line 13+1 kern/trap/vectors.S
+[section .text]
+intr_0x20_entry:
+ push 0
+
+ push intr_str
+ call print_str
+ add esp, 4
+
+ mov al, 0x20
+ out 0xa0, al
+ out 0x20, al
+
+ add esp, 4
+ iret
+
+[section .data]
+ dd intr_0x20_entry
+
+%line 66+1 kern/trap/vectors.S
+

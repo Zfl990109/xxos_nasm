@@ -1,13 +1,13 @@
 %include "asm.inc"
 
 SECTION BOOTMAIN vstart=LOADER_ADDR
-bits 32
+[bits 32]
 main:
     mov esp, LOADER_ADDR
     ; 读取内核
     mov eax, 5
     mov ebx, KERNEL_BIN_ADDR
-    mov ecx, 30
+    mov ecx, 100
     call read_mem
 
     ; 开启分页
@@ -40,23 +40,13 @@ enter_kernel:
     mov ax, select_code
     jmp select_code:KERNEL_ADDR
 
-
-
-
-
-
-
-
-
-
-
     page_msg: db "page table is established"
     page_msg_len equ $ - page_msg
     kern_msg: db "kernel is inited!"
     kern_msg_len equ $ - kern_msg
 
 
-bits 32
+[bits 32]
 ; ======================================================
 ; setup_page 函数, 开启分页机制
 ; ______________________________________________________
@@ -177,7 +167,7 @@ mem_cpy:
 ; read_men(void* dest, uint_32 sector_no, uint_32 count) 函数
 ; dest 表示读入内存的目的地址, sector_no 表示起始扇区, count 表示读取的扇区个数
 ; ______________________________________________________
-bits 32
+[bits 32]
 read_mem:
     push eax;           eax 表示读取的扇区起始编号
     push ebx;           ebx 表示读入的目的地址

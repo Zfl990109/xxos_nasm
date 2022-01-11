@@ -3,7 +3,7 @@ org 0x7c00
 global print
 global read_mem
 SECTION MBR
-bits 16
+[bits 16]
 start:
     mov ax, cs
     mov ds, ax
@@ -73,7 +73,7 @@ finish_probe:
     jmp select_code:loader
 
 
-bits 32
+[bits 32]
 loader:
     mov ax, select_data
     mov ds, ax
@@ -116,7 +116,7 @@ loader:
 ; ======================================================
 ; print(char* str, uint_32 line, uint_32 len) 函数, str 表示字符串的起始位置, line 表示行数, len 表示字符串长度
 ; ______________________________________________________
-bits 32
+[bits 32]
 print:
     push eax
     push ebx
@@ -147,7 +147,7 @@ print:
 ; read_men(void* dest, uint_32 sector_no, uint_32 count) 函数
 ; dest 表示读入内存的目的地址, sector_no 表示起始扇区, count 表示读取的扇区个数
 ; ______________________________________________________
-bits 32
+[bits 32]
 read_mem:
     push eax;           eax 表示读取的扇区起始编号
     push ebx;           ebx 表示读入的目的地址
