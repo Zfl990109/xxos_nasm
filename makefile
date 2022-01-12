@@ -8,7 +8,7 @@ target/boot/bootmain.bin : boot/bootmain.S
 	nasm -Iboot/ -Ilibs/  -o $@ $^
 
 
-target/kern/kernel.bin : obj/kern/init/init.o obj/kern/trap/interrupt.o obj/libs/print.o obj/kern/trap/vector.o
+target/kern/kernel.bin : obj/kern/init/init.o obj/kern/trap/interrupt.o obj/kern/driver/timer.o obj/libs/print.o obj/kern/trap/vector.o
 	ld -m elf_i386 $^ -Ttext 0xc0001500 -e main -o $@
 
 obj/libs/print.o : libs/print.S
@@ -20,6 +20,9 @@ obj/kern/trap/vector.o : kern/trap/vectors.S
 obj/kern/trap/interrupt.o : kern/trap/interrupt.c
 	gcc -Ilibs/ -Ikern/trap/ -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc \
  		-fno-stack-protector -no-pie -fno-pic -c $^ -o $@
+
+obj/kern/driver/timer.o : kern/driver/timer.c
+	gcc -Ilibs/ -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -no-pie -fno-pic -c $^ -o $@
 
 obj/kern/init/init.o : kern/init/init.c
 	gcc -Ilibs/ -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -no-pie -fno-pic -c $^ -o $@
@@ -37,6 +40,10 @@ install:
 run:
 	bochs -f bochsrc
 
+
+.PHONY:
+clean:
+	rm obj/*.o
 
 obj/kern/trap/vector.out : kern/trap/vectors.S
 	nasm -Iboot/ -E -o $@ $^

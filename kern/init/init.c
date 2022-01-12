@@ -3,6 +3,7 @@
 //
 #include "../../libs/print.h"
 #include "../trap/interrupt.h"
+#include "../driver/timer.h"
 
 void init_all(void);
 
@@ -12,9 +13,9 @@ void main(void){
     init_all();
     asm volatile("sti");
     //TODO:分页处理
-    int i = 10000;
-    while (i--){}
-    asm volatile("cli");
+//    int i = 100000;
+//    while (i--){}
+//    asm volatile("cli");
     while (1);
 }
 
@@ -22,6 +23,7 @@ void main(void){
 void init_all(){
     print_str("init all modules...\n");
     init_intr();
+    init_timer();
 }
 
 

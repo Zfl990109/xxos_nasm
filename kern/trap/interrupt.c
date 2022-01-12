@@ -12,8 +12,46 @@
 static struct gate_desc idt[IDT_DESC_CNT];
 // 声明在 vectors.S 中的中断处理函数入口
 extern intr_handler intr_entry_table[IDT_DESC_CNT];
-
+// 中断名称
 char* intr_name[IDT_DESC_CNT];
+// 中断处理函数
+intr_handler intr_func_table[IDT_DESC_CNT];
+
+static void set_intr_func(uint8_t vector_no){
+    if (vector_no == 0x27 || vector_no == 0x2f)
+        return;
+    print_str("int vector: 0x");
+    print_int(vector_no);
+    print_char('\n');
+}
+
+static void intr_func_regist(void){
+    int i;
+    for (i = 0; i < IDT_DESC_CNT; ++i) {
+        intr_func_table[i] = set_intr_func;
+        intr_name[i] = "unknow";
+    }
+    intr_name[0] = "#DE Divide Error";
+    intr_name[1] = "#DB Debug Exception";
+    intr_name[2] = "#NMI Interrupt";
+    intr_name[3] = "#BP Breakpoint Exception";
+    intr_name[4] = "#OF Overflow Exception";
+    intr_name[5] = "#BR BOUND Range Exceeded Exception";
+    intr_name[6] = "#UD Invalid Opcode Exception";
+    intr_name[7] = "#NM Device Not Available Exception";
+    intr_name[8] = "#DF Double Fault Exception";
+    intr_name[9] = "Coprocessor Segment Overturn";
+    intr_name[10] = "#TS Invalid TSS Exception";
+    intr_name[11] = "#NP Segment Not Present";
+    intr_name[12] = "#SS Stack Fault Exception";
+    intr_name[13] = "#GP General Protection Exception";
+    intr_name[14] = "#PF Page-Fault Exception";
+//    intr_name[15] = "#DE Divide Error";   intel 保留项, 未使用
+    intr_name[16] = "#MF x87 FPU Floating-Point Error";
+    intr_name[17] = "#AC Alignment Check Exception";
+    intr_name[18] = "#MC Machine-Check Exception";
+    intr_name[19] = "#XF SIMD Floating-Point Exception";
+}
 
 //  设置中断描述符
 static void set_gate(struct gate_desc* gate, uint8_t attr, intr_handler func){
@@ -33,10 +71,6 @@ static void init_idt(void){
     print_str("    idt init done!\n");
 }
 
-#define PIC_MAIN_CTRL   0x20        //主片控制端口
-#define PIC_MAIN_DATA   0x21        //主片数据端口
-#define PIC_SUBO_CTRL   0xa0        //从片控制端口, SUBO -- subordinate(从属)的简写
-#define PIC_SUBO_DATA   0xa1        //从片数据端口
 // 对可编程中断处理芯片初始化(初始化 8259A)
 static void init_pic(void){
     // 初始化主片
@@ -63,6 +97,7 @@ static void init_pic(void){
 void init_intr(){
     print_str("interrupt init start ...\n");
     init_idt();
+    intr_func_regist();
     init_pic();
 
     // 加载 idt

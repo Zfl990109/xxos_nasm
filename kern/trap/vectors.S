@@ -3,6 +3,7 @@
 %define zero push 0
 
 extern print_str
+extern intr_func_table
 global intr_entry_table
 
 section .data
@@ -14,21 +15,34 @@ section .text
 intr_%1_entry:
     %2
     ; 保存上下文环境
-    push intr_str
-    call print_str
-    add esp, 4
-
-    mov al, 0x20
-    out 0xa0, al
-    out 0x20, al
-
-    add esp, 4
-    iret
+    push ds
+    push es
+    push fs
+    push gs
+    pushad
+    mov al, 0x20            ; 中断结束命令EOI
+    out 0xa0, al            ; 向从片发送
+    out 0x20, al            ; 向主片发送
+    push %1                 ; 压入中断向量号
+    call [intr_func_table + %1 * 4]     ; 调用由 c 语言实现的中断处理函数
+    jmp intr_exit
 
 section .data
     dd intr_%1_entry
 
 %endmacro
+
+section .text
+global intr_exit
+intr_exit:
+    add esp, 4              ; 跳过中断号
+    popad
+    pop gs
+    pop fs
+    pop es
+    pop ds
+    add esp, 4              ; 跳过 error_code
+    iretd
 
 vector 0x00, zero
 vector 0x01, zero
