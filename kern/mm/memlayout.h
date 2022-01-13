@@ -1,4 +1,7 @@
 
+
+#ifndef XXOS_MEMLAYOUT_H
+#define XXOS_MEMLAYOUT_H
 #include "../../libs/defs.h"
 
 typedef uintptr_t pte_t;
@@ -45,3 +48,4 @@ typedef struct {
     list_entry_t free_list;         // 链表头
     uint32_t nr_free;           // 空闲链表中的空闲页个数
 } free_area_t;
+#endif// XXOS_MEMLAYOUT_H

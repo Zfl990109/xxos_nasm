@@ -1,5 +1,5 @@
 
-GCCP1 = -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -nostdinc -Os
+GCCP1 = -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc -fno-stack-protector -no-pie -fno-pic
 
 target/boot/bootblock.bin : boot/bootblock.S
 	nasm -Iboot/ -Ilibs -o $@ $^
@@ -8,24 +8,38 @@ target/boot/bootmain.bin : boot/bootmain.S
 	nasm -Iboot/ -Ilibs/  -o $@ $^
 
 
-target/kern/kernel.bin : obj/kern/init/init.o obj/kern/trap/interrupt.o obj/kern/driver/timer.o obj/libs/print.o obj/kern/trap/vector.o
+target/kern/kernel.bin : obj/kern/init/init.o obj/kern/trap/interrupt.o obj/kern/debug/assert.o \
+	obj/kern/mm/memory.o obj/kern/driver/timer.o  obj/kern/trap/vector.o obj/libs/bitmap.o obj/libs/string.o  obj/libs/print.o
 	ld -m elf_i386 $^ -Ttext 0xc0001500 -e main -o $@
 
 obj/libs/print.o : libs/print.S
 	nasm -Iboot/ -f elf -o $@ $^
 
+obj/libs/bitmap.o : libs/bitmap.c
+	gcc -Ilibs/ -Ikern/trap/ $(GCCP1) -c $^ -o $@
+
+obj/libs/string.o : libs/string.c
+	gcc -Ilibs/ -Ikern/trap/ $(GCCP1) -c $^ -o $@
+
 obj/kern/trap/vector.o : kern/trap/vectors.S
 	nasm -Iboot/ -f elf -o $@ $^
 
+obj/kern/mm/memory.o : kern/mm/memory.c
+	gcc -Ilibs/ -Ikern/trap/ $(GCCP1) -c $^ -o $@
+
+obj/kern/debug/assert.o : kern/debug/assert.c
+	gcc -Ilibs/ -Ikern/trap/ $(GCCP1) -c $^ -o $@
+
 obj/kern/trap/interrupt.o : kern/trap/interrupt.c
-	gcc -Ilibs/ -Ikern/trap/ -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc \
- 		-fno-stack-protector -no-pie -fno-pic -c $^ -o $@
+	gcc -Ilibs/ -Ikern/trap/ $(GCCP1) -c $^ -o $@
 
 obj/kern/driver/timer.o : kern/driver/timer.c
-	gcc -Ilibs/ -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -no-pie -fno-pic -c $^ -o $@
+	gcc -Ilibs/ $(GCCP1) -c $^ -o $@
 
 obj/kern/init/init.o : kern/init/init.c
-	gcc -Ilibs/ -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc  -fno-stack-protector -no-pie -fno-pic -c $^ -o $@
+	gcc -Ilibs/ $(GCCP1) -c $^ -o $@
+
+
 #target/boot/bootmain.bin : obj/boot/bootmain.o
 #	gcc -Iboot/ $(GCCP1) -Ilibs/ -c $^ -o $@
 #
@@ -43,7 +57,11 @@ run:
 
 .PHONY:
 clean:
-	rm obj/*.o
+	rm obj/libs/*.o
+
+all: target/boot/bootblock.bin target/boot/bootmain.bin target/kern/kernel.bin
+	@echo "compile done"
+
 
 obj/kern/trap/vector.out : kern/trap/vectors.S
 	nasm -Iboot/ -E -o $@ $^

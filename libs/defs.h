@@ -17,6 +17,9 @@ typedef unsigned long long int uint64_t;
 typedef int32_t intptr_t;
 typedef uint32_t uintptr_t;
 
+typedef uint8_t bool;
+#define NULL 0
+
 // 用与内存对象大小
 typedef uintptr_t size_t;
 

@@ -3,7 +3,7 @@
 //
 
 #include "../../libs/defs.h"
-#include "global.h"
+#include "../../libs/global.h"
 #include "interrupt.h"
 #include "../../libs/print.h"
 #include "../../libs/io.h"
@@ -16,12 +16,44 @@ extern intr_handler intr_entry_table[IDT_DESC_CNT];
 char* intr_name[IDT_DESC_CNT];
 // 中断处理函数
 intr_handler intr_func_table[IDT_DESC_CNT];
+enum intr_status enable_intr(){
+    enum intr_status old_status;
+    if (INTR_ON == intr_get_status()){
+        old_status = INTR_ON;
+    }else{
+        old_status = INTR_OFF;
+        asm volatile("sti");
+    }
+    return old_status;
+}
+
+enum intr_status disable_intr(){
+    enum intr_status old_status;
+    if (INTR_ON == intr_get_status()){
+        old_status = INTR_ON;
+        asm volatile("cli" : : : "memory");
+    }else{
+        old_status = INTR_OFF;
+    }
+    return old_status;
+}
+
+enum intr_status ser_intr_status(enum intr_status status){
+    return status & INTR_ON ? enable_intr() : disable_intr();
+}
+
+enum intr_status intr_get_status(){
+    uint32_t eflags = 0;
+    GET_EFLAGS(eflags);
+    return (EFLAGS_IF & eflags) ? INTR_ON : INTR_OFF;
+}
 
 static void set_intr_func(uint8_t vector_no){
     if (vector_no == 0x27 || vector_no == 0x2f)
         return;
     print_str("int vector: 0x");
     print_int(vector_no);
+    print_str(intr_name[vector_no]);
     print_char('\n');
 }
 
