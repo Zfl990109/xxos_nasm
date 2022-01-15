@@ -38,7 +38,7 @@ enum intr_status disable_intr(){
     return old_status;
 }
 
-enum intr_status ser_intr_status(enum intr_status status){
+enum intr_status set_intr_status(enum intr_status status){
     return status & INTR_ON ? enable_intr() : disable_intr();
 }
 
@@ -51,10 +51,17 @@ enum intr_status intr_get_status(){
 static void set_intr_func(uint8_t vector_no){
     if (vector_no == 0x27 || vector_no == 0x2f)
         return;
-    print_str("int vector: 0x");
-    print_int(vector_no);
+    reset_screen();
+    print_str("/************* exception message ****************/\n");
     print_str(intr_name[vector_no]);
-    print_char('\n');
+    if (vector_no == 14){
+        int page_fault_vaddr = 0;
+        asm("movl %%cr2, %0": "=r"(page_fault_vaddr));
+        print_str("\npage fault addr is ");
+        print_int(page_fault_vaddr);
+    }
+    print_str("\n/************* exception message ****************/\n");
+    while (1);
 }
 
 static void intr_func_regist(void){
@@ -83,6 +90,10 @@ static void intr_func_regist(void){
     intr_name[17] = "#AC Alignment Check Exception";
     intr_name[18] = "#MC Machine-Check Exception";
     intr_name[19] = "#XF SIMD Floating-Point Exception";
+}
+
+void register_intr_func(uint8_t vector_no, intr_handler function){
+    intr_func_table[vector_no] = function;
 }
 
 //  设置中断描述符

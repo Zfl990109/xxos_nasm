@@ -7,7 +7,7 @@ main:
     ; 读取内核
     mov eax, 5
     mov ebx, KERNEL_BIN_ADDR
-    mov ecx, 100
+    mov ecx, 200
     call read_mem
 
     ; 开启分页

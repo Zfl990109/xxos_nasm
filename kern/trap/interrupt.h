@@ -50,8 +50,10 @@ enum intr_status enable_intr(void);
 
 enum intr_status disable_intr(void);
 
-enum intr_status ser_intr_status(enum intr_status status);
+enum intr_status set_intr_status(enum intr_status status);
 
 enum intr_status intr_get_status(void);
+
+void register_intr_func(uint8_t vector_no, intr_handler function);
 
 #endif //XXOS_INTERRUPT_H
