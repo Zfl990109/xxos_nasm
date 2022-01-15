@@ -14,7 +14,7 @@ void init_all(void);
 
 void main(void){
     reset_screen();
-    print_str("xxos is loading ...\n");
+    print_str("xxos_nasm is loading ...\n");
     init_all();
 //    ASSERT(strcmp("bbb", "bbb"));
 //    void* addr = apply_kernel_pages(3);

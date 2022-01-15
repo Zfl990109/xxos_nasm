@@ -62,26 +62,23 @@ struct thread_stack{
 struct task_struct{
     uint32_t* self_kernel_stack;
     enum task_status status;
-    uint8_t priority;
     char name[16];
-//    uint8_t ticks;               // 处理器上执行的时间数
-//
-//    uint32_t elapsed_ticks;      // 此任务已经执行的时间数
-//    struct list_elem general_tag;   // 在线程队列中的结点
-//    struct list_elem all_list_tag;   // 在线程队列中的所有
-//
-//    uint32_t* pgdir;            // 进程页表的虚拟地址
+    uint8_t priority;
+    uint8_t ticks;               // 处理器上执行的时间数
+
+    uint32_t elapsed_ticks;      // 此任务已经执行的时间数
+    struct list_elem general_tag;   // 在线程队列中的结点
+    struct list_elem all_list_tag;   // 在线程队列中的所有
+
+    uint32_t* pgdir;            // 进程页表的虚拟地址
 
     uint32_t stack_magic;        // 栈的边界标记, 用于检测栈的溢出
 };
 
-//struct task_struct* main_thread;        // 主线程 PCB
-//struct list thread_ready_list;          // 就绪队列
-//struct list thread_all_list;            // 所有任务队列
-//static struct list_elem* thread_tag;    // 用于保存队列中的线程结点
+
 
 // 获取当前线程的 PCB 指针
-//struct task_struct* running_thread();
+struct task_struct* running_thread();
 
 
 // 由 kernel_thread 执行 function(func_arg)
@@ -95,10 +92,10 @@ void thread_init(struct task_struct* pthread, char* name, int prio);
 
 struct task_struct* thread_start(char* name, int prio, thread_func function, void* func_arg);
 
-//void schedule(void);
-//
-//static void make_main_thread(void);
-//
-//void init_thread(void);
+void schedule(void);
+
+static void make_main_thread(void);
+
+void init_thread(void);
 
 #endif //XXOS_THREAD_H
