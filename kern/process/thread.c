@@ -102,6 +102,30 @@ void schedule(void){
     switch_to(cur, next);
 }
 
+void thread_block(enum task_status status){
+    ASSERT(((status == TASK_BLOCKED) || (status == TASK_WAITING) || status == TASK_HANGING));
+    enum intr_status old_status = disable_intr();
+    struct task_struct* cur_thread = running_thread();
+    cur_thread->status = status;
+    schedule();
+    set_intr_status(old_status);
+}
+
+void thread_unblock(struct task_struct* pthread){
+    enum intr_status old_status = disable_intr();
+    ASSERT(((pthread->status == TASK_BLOCKED) || (pthread->status == TASK_WAITING) || (pthread->status == TASK_HANGING)));
+    if (pthread->status != TASK_READY){
+        ASSERT(!elem_find(&thread_ready_list, &pthread->general_tag));
+        if (elem_find(&thread_ready_list, &pthread->general_tag)){
+            PANIC("thread_unblock: blocked thread in ready_list!\n");
+        }
+        list_push(&thread_ready_list, &pthread->general_tag);
+        pthread->status = TASK_READY;
+    }
+    set_intr_status(old_status);
+}
+
+
 static void make_main_thread(void){
     main_thread = running_thread();
     thread_init(main_thread, "main", 31);

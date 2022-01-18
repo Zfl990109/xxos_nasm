@@ -1,8 +1,8 @@
 
 GCCP1 = -fno-builtin -Wall -ggdb -m32 -gstabs -nostdinc -fno-stack-protector -no-pie -fno-pic
 
-obj = obj/kern/init/init.o obj/kern/trap/interrupt.o obj/kern/debug/assert.o \
-      	obj/kern/mm/memory.o obj/kern/driver/timer.o obj/kern/process/thread.o obj/kern/process/switch.o \
+obj = obj/kern/init/init.o obj/kern/trap/interrupt.o obj/kern/debug/assert.o obj/kern/device/console.o obj/kern/device/keyboard.o \
+      	obj/kern/mm/memory.o obj/kern/driver/timer.o obj/kern/process/thread.o obj/kern/process/sync.o obj/kern/process/switch.o \
       	obj/kern/trap/vector.o obj/libs/bitmap.o obj/libs/string.o  obj/libs/print.o obj/libs/list.o
 
 target = target/boot/bootblock.bin target/boot/bootmain.bin target/kern/kernel.bin
@@ -34,8 +34,17 @@ obj/libs/list.o : libs/list.c
 obj/libs/string.o : libs/string.c
 	gcc -Ilibs/ -Ikern/trap/ $(GCCP1) -c $^ -o $@
 
+obj/kern/device/console.o : kern/device/console.c
+	gcc -Ilibs/ -Ikern/process/ $(GCCP1) -c $^ -o $@
+
+obj/kern/device/keyboard.o : kern/device/keyboard.c
+	gcc -Ilibs/ -Ikern/process/ $(GCCP1) -c $^ -o $@
+
 obj/kern/trap/vector.o : kern/trap/vectors.S
 	nasm -Iboot/ -f elf -o $@ $^
+
+obj/kern/process/sync.o : kern/process/sync.c
+	gcc -Ilibs/ -Ikern/trap/ -Ikern/debug/ $(GCCP1) -c $^ -o $@
 
 obj/kern/process/thread.o : kern/process/thread.c
 	gcc -Ilibs/ -Ikern/trap/ $(GCCP1) -c $^ -o $@

@@ -7,7 +7,7 @@
 
 #include "../../libs/defs.h"
 
-#define IDT_DESC_CNT 0x21           // 支持的中断数
+#define IDT_DESC_CNT    0x30         // 支持的中断数
 
 #define PIC_MAIN_CTRL   0x20        //主片控制端口
 #define PIC_MAIN_DATA   0x21        //主片数据端口

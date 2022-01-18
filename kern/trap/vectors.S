@@ -75,6 +75,21 @@ vector 0x1b, zero
 vector 0x1c, zero
 vector 0x1d, zero
 vector 0x1e, error_code
-vector 0x1f, zero
-vector 0x20, zero
+vector 0x1f, zero               ; 前32个用于异常
+vector 0x20, zero               ; 时钟中断对应的入口
+vector 0x21, zero               ; 键盘中断对应的入口
+vector 0x22, zero               ; 级联
+vector 0x23, zero               ; 串口 2 对应的入口
+vector 0x24, zero               ; 串口 1 对应的入口
+vector 0x25, zero               ; 并口 2 对应的入口
+vector 0x26, zero               ; 软盘对应的入口
+vector 0x27, zero               ; 并口 1 对应的入口
+vector 0x28, zero               ; 实时时钟对应的入口
+vector 0x29, zero               ; 重定向
+vector 0x2a, zero               ; 保留
+vector 0x2b, zero               ; 保留
+vector 0x2c, zero               ; ps/2 鼠标
+vector 0x2d, zero               ; fpu 浮点单元异常
+vector 0x2e, zero               ; 硬盘
+vector 0x2f, zero               ; 保留
 

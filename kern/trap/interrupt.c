@@ -128,8 +128,12 @@ static void init_pic(void){
     outb(PIC_SUBO_DATA, 0x02);      // ICW3:  表示从片连接在主片的 IRQ2 的引脚上
     outb(PIC_SUBO_DATA, 0x01);      // ICW4:  8086模式, 正常 EOI
 
-    // 打开主片上的 IRQ0, 即打开时钟中断
-    outb(PIC_MAIN_DATA, 0xfe);
+//    // 打开主片上的 IRQ0, 即打开时钟中断
+//    outb(PIC_MAIN_DATA, 0xfe);
+//    outb(PIC_SUBO_DATA, 0xff);
+
+    // 打开键盘中断
+    outb(PIC_MAIN_DATA, 0xfd);
     outb(PIC_SUBO_DATA, 0xff);
 
     print_str("    pic init done!\n");

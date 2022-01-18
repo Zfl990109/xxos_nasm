@@ -4,10 +4,12 @@
 #include "../../libs/print.h"
 #include "../trap/interrupt.h"
 #include "../driver/timer.h"
+#include "../device/keyboard.h"
 #include "../debug/assert.h"
 #include "../mm/memory.h"
 #include "../../libs/string.h"
 #include "../process/thread.h"
+#include "../device/console.h"
 void kernel_thread_a(void*);
 void kernel_thread_b(void*);
 void init_all(void);
@@ -18,17 +20,16 @@ int main(void){
     init_all();
 //    ASSERT(strcmp("bbb", "bbb"));
 //    void* addr = apply_kernel_pages(3);
-    thread_start("kernel_thread_a", 31, kernel_thread_a, "argA ");
-    thread_start("kernel_thread_b", 8, kernel_thread_b, "argB ");
+//    thread_start("kernel_thread_a", 31, kernel_thread_a, "argA ");
+//    thread_start("kernel_thread_b", 8, kernel_thread_b, "argB ");
+    enable_intr();
 //    asm volatile("sti");
     //TODO:分页处理
 //    int i = 100000;
 //    while (i--){}
 //    asm volatile("cli");
     while (true){
-        disable_intr();
-        print_str("MAIN ");
-        enable_intr();
+//        console_print_str("Main ");
     }
     return 0;
 }
@@ -36,18 +37,14 @@ int main(void){
 void kernel_thread_a(void* arg){
     char* para = arg;
     while (1){
-        disable_intr();
-        print_str(para);
-        enable_intr();
+        console_print_str(para);
     }
 //    print_str(para);
 }
 void kernel_thread_b(void* arg){
     char* para = arg;
     while (1){
-        disable_intr();
-        print_str(para);
-        enable_intr();
+        console_print_str(para);
     }
 //    print_str(para);
 }
@@ -59,6 +56,8 @@ void init_all(){
     init_timer();
     init_mem();
     init_thread();
+    init_console();
+    init_keyboard();
 }
 
 
