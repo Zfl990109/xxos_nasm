@@ -3,10 +3,13 @@
 //
 
 #include "keyboard.h"
+#include "ioqueue.h"
 #include "../../libs/print.h"
 #include "../trap/interrupt.h"
 #include "../../libs/io.h"
 #include "../../libs/global.h"
+
+struct ioqueue kbd_buf;
 
 static void intr_keyboard_func(void){
 
@@ -53,7 +56,10 @@ static void intr_keyboard_func(void){
         uint8_t index = (scancode &= 0x00ff);
         char cur_char = keymap[index][shift];
         if (cur_char){
-            print_char(cur_char);
+//            if (!ioq_full(&kbd_buf)){
+                print_char(cur_char);
+//                ioq_putchar(&kbd_buf, cur_char);
+//            }
             return;
         }
 
@@ -74,6 +80,7 @@ static void intr_keyboard_func(void){
 
 void init_keyboard(){
     print_str("keyboard init start ...\n");
+    init_ioqueue(&kbd_buf);
     register_intr_func(0x21, intr_keyboard_func);
     print_str("keyboard init done!\n");
 }

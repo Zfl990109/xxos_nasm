@@ -6,13 +6,14 @@
 #define XXOS_NASM_KEYBOARD_H
 
 #include "../../libs/defs.h"
+#include "ioqueue.h"
 
 #define KBD_BUF_PORT        0x60    // 键盘 buffer 寄存器端口号为 0x60
 #define esc                 '\033'
 #define backspace           '\b'
 #define tab                 '\t'
 #define enter               '\r'
-#define asc_delete          '\177'
+#define asc_delete          '\0177'
 
 #define char_invisible      0
 #define ctrl_l_char         char_invisible
@@ -99,8 +100,10 @@ static char keymap[][2] = {
         {caps_lock_char,         caps_lock_char}
 };
 
+extern struct ioqueue kbd_buf;
+
 static void intr_keyboard_func(void);
 
-void init_keyboard();
+void init_keyboard(void);
 
 #endif //XXOS_NASM_KEYBOARD_H

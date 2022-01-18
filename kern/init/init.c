@@ -5,11 +5,13 @@
 #include "../trap/interrupt.h"
 #include "../driver/timer.h"
 #include "../device/keyboard.h"
+#include "../device/ioqueue.h"
 #include "../debug/assert.h"
 #include "../mm/memory.h"
 #include "../../libs/string.h"
 #include "../process/thread.h"
 #include "../device/console.h"
+
 void kernel_thread_a(void*);
 void kernel_thread_b(void*);
 void init_all(void);
@@ -20,34 +22,44 @@ int main(void){
     init_all();
 //    ASSERT(strcmp("bbb", "bbb"));
 //    void* addr = apply_kernel_pages(3);
-//    thread_start("kernel_thread_a", 31, kernel_thread_a, "argA ");
-//    thread_start("kernel_thread_b", 8, kernel_thread_b, "argB ");
+//    thread_start("consumer_a", 31, kernel_thread_a, " A_");
+//    thread_start("consumer_b", 31, kernel_thread_b, " B_");
     enable_intr();
 //    asm volatile("sti");
     //TODO:分页处理
 //    int i = 100000;
 //    while (i--){}
 //    asm volatile("cli");
-    while (true){
-//        console_print_str("Main ");
-    }
+    while (true);
     return 0;
 }
 
-void kernel_thread_a(void* arg){
-    char* para = arg;
-    while (1){
-        console_print_str(para);
-    }
-//    print_str(para);
-}
-void kernel_thread_b(void* arg){
-    char* para = arg;
-    while (1){
-        console_print_str(para);
-    }
-//    print_str(para);
-}
+//void kernel_thread_a(void* arg){
+//    char* para = arg;
+//    while (1){
+//        enum intr_status old_status = disable_intr();
+//        if (!ioq_empty(&kbd_buf)){
+//            console_print_str(para);
+//            char byte = ioq_getchar(&kbd_buf);
+//            console_print_char(byte);
+//        }
+//        set_intr_status(old_status);
+//    }
+////    print_str(para);
+//}
+//void kernel_thread_b(void* arg){
+//    char* para = arg;
+//    while (1){
+//        enum intr_status old_status = disable_intr();
+//        if (!ioq_empty(&kbd_buf)){
+//            console_print_str(para);
+//            char byte = ioq_getchar(&kbd_buf);
+//            console_print_char(byte);
+//        }
+//        set_intr_status(old_status);
+//    }
+////    print_str(para);
+//}
 
 // 初始化所有模块
 void init_all(){

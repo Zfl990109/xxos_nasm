@@ -133,7 +133,7 @@ static void init_pic(void){
 //    outb(PIC_SUBO_DATA, 0xff);
 
     // 打开键盘中断
-    outb(PIC_MAIN_DATA, 0xfd);
+    outb(PIC_MAIN_DATA, 0xfc);
     outb(PIC_SUBO_DATA, 0xff);
 
     print_str("    pic init done!\n");
