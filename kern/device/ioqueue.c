@@ -16,7 +16,7 @@ void init_ioqueue(struct ioqueue* ioq){
 }
 
 static int32_t next_pos(int32_t pos){
-    return (pos + 1) & bufsize;
+    return (pos + 1) % bufsize;
 }
 
 bool ioq_full(struct ioqueue* ioq){
@@ -24,7 +24,7 @@ bool ioq_full(struct ioqueue* ioq){
     return next_pos(ioq->head) == ioq->tail;
 }
 
-static bool ioq_empty(struct ioqueue* ioq){
+bool ioq_empty(struct ioqueue* ioq){
     ASSERT(intr_get_status() == INTR_OFF);
     return ioq->head == ioq->tail;
 }

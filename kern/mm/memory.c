@@ -26,11 +26,13 @@ static void mem_pool_init(uint32_t all_mem){
     uint32_t kernel_pool_addr = used_mem;
     uint32_t user_pool_addr = kernel_pool_addr + kernel_free_pages * PG_SIZE;
 
+    init_lock(&kernel_pool.lock);
     kernel_pool.phy_addr = kernel_pool_addr;
     kernel_pool.size = kernel_free_pages * PG_SIZE;
     kernel_pool.pool_bitmap.len = kernel_bitmap_len;
     kernel_pool.pool_bitmap.flags = (void*) MEM_BITMAP_ADDR;
 
+    init_lock(&user_pool.lock);
     user_pool.phy_addr = user_pool_addr;
     user_pool.size = user_free_pages * PG_SIZE;
     user_pool.pool_bitmap.len = user_bitmap_len;
@@ -73,6 +75,16 @@ static void* apply_virtual_page(enum pool_flags pf, uint32_t pg_count){
         vaddr_start = kernel_vaddr.vaddr_start + bit_idx * PG_SIZE;
     }else{
         //TODO: 用户内存池
+        struct task_struct* cur = running_thread();
+        bit_idx = bitmap_scan(&cur->userprog_vaddr->virtual_bitmap, pg_count);
+        if (bit_idx == -1){
+            return NULL;
+        }
+        while (count < pg_count){
+            bitmap_set(&cur->userprog_vaddr->virtual_bitmap, bit_idx + count++, 1);
+        }
+        vaddr_start = cur->userprog_vaddr->vaddr_start + bit_idx * PG_SIZE;
+        ASSERT((uint32_t)vaddr_start < (0xc0000000 - PG_SIZE));
     }
     return (void*) vaddr_start;
 }
@@ -141,10 +153,52 @@ void* malloc_page(enum pool_flags pf, uint32_t pg_count){
 
 // 在内核内存池中申请 pg_count 数量的页面, 并返回虚拟地址
 void* apply_kernel_pages(uint32_t pg_count){
+    acquire_lock(&kernel_pool.lock);
     void* vaddr = malloc_page(PF_KERNEL, pg_count);
     if (vaddr != NULL)
         memset(vaddr, 0, pg_count * PG_SIZE);
+    release_lock(&kernel_pool.lock);
     return vaddr;
+}
+
+// 在用户内存池中申请 pg_count 数量的页面, 并返回虚拟地址
+void* apply_user_pages(uint32_t pg_count){
+    acquire_lock(&user_pool.lock);
+    void* vaddr = malloc_page(PF_USER, pg_count);
+    if (vaddr != NULL)
+        memset(vaddr, 0, pg_count * PG_SIZE);
+    release_lock(&user_pool.lock);
+    return vaddr;
+}
+// 将虚拟地址 vaddr 与 pf 物理内存池中的物理地址关联, 仅支持一页空间分配
+void* bind_page_vaddr(enum pool_flags pf, uint32_t vaddr){
+    struct pool* mem_pool = pf & PF_KERNEL ? &kernel_pool : &user_pool;
+    acquire_lock(&mem_pool->lock);
+    struct task_struct* cur = running_thread();
+    int32_t bit_idx = -1;
+    if (cur->pgdir != NULL && pf == PF_USER){
+        bit_idx = (vaddr - cur->userprog_vaddr->vaddr_start) / PG_SIZE;
+        ASSERT(bit_idx > 0);
+        bitmap_set(&cur->userprog_vaddr->virtual_bitmap, bit_idx, 1);
+    } else if (cur->pgdir == NULL && pf == PF_KERNEL){
+        bit_idx = (vaddr - kernel_vaddr.vaddr_start) / PG_SIZE;
+        ASSERT(bit_idx > 0);
+        bitmap_set(&kernel_vaddr.virtual_bitmap, bit_idx, 1);
+    } else{
+        PANIC("bind_page_vaddr: not allow kernel alloc userspace or user alloc kernelspace by bind_page_vaddr!");
+    }
+    void* page_phyaddr = palloc(mem_pool);
+    if (page_phyaddr == NULL)
+        return NULL;
+    page_table_add((void*)vaddr, page_phyaddr);
+    release_lock(&mem_pool->lock);
+    return (void*)vaddr;
+}
+
+// 将虚拟地址 vaddr 转化为对应的物理地址 phyaddr
+uint32_t vaddr2phyaddr(uint32_t vaddr){
+    uint32_t* pte = pte_ptr(vaddr);
+    return ((*pte & 0xfffff000) + (vaddr & 0x00000fff));
 }
 
 void init_mem(){

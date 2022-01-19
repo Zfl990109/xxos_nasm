@@ -8,6 +8,7 @@
 #include "../trap/interrupt.h"
 #include "../../libs/io.h"
 #include "../../libs/global.h"
+#include "../debug/assert.h"
 
 struct ioqueue kbd_buf;
 
@@ -56,10 +57,11 @@ static void intr_keyboard_func(void){
         uint8_t index = (scancode &= 0x00ff);
         char cur_char = keymap[index][shift];
         if (cur_char){
-//            if (!ioq_full(&kbd_buf)){
-                print_char(cur_char);
-//                ioq_putchar(&kbd_buf, cur_char);
-//            }
+            ASSERT(!ioq_full(&kbd_buf));
+            if (!ioq_full(&kbd_buf)){
+//                print_char(cur_char);
+                ioq_putchar(&kbd_buf, cur_char);
+            }
             return;
         }
 

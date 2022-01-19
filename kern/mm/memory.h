@@ -6,6 +6,7 @@
 #define XXOS_MEMORY_H
 #include "../../libs/defs.h"
 #include "../../libs/bitmap.h"
+#include "../process/sync.h"
 
 #define PG_SIZE 4096
 #define MEM_BITMAP_ADDR  0xc009a000
@@ -20,6 +21,7 @@ struct pool{
     struct bitmap pool_bitmap;
     uint32_t phy_addr;
     uint32_t size;
+    struct lock lock;       // 申请内存时互斥
 };
 
 
@@ -58,6 +60,15 @@ void* malloc_page(enum pool_flags pf, uint32_t pg_count);
 
 // 在内核内存池中申请 pg_count 数量的页面, 并返回虚拟地址
 void* apply_kernel_pages(uint32_t pg_count);
+
+// 在用户内存池中申请 pg_count 数量的页面, 并返回虚拟地址
+void* apply_user_pages(uint32_t pg_count);
+
+// 将虚拟地址 vaddr 与 pf 物理内存池中的物理地址关联, 仅支持一页空间分配
+void* bind_page_vaddr(enum pool_flags pf, uint32_t vaddr);
+
+// 将虚拟地址 vaddr 转化为对应的物理地址 phyaddr
+uint32_t vaddr2phyaddr(uint32_t vaddr);
 
 void init_mem(void);
 
