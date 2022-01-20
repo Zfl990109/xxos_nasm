@@ -20,14 +20,14 @@ static void set_frequency(uint8_t counter_port, uint8_t counter_no,
 
 static void intr_time_func(void){
     struct task_struct* cur_thread = running_thread();
+    print_str(cur_thread->name);
+    print_str(" ticks ......\n");
     ASSERT(cur_thread->stack_magic == 0x19990109);
     cur_thread->elapsed_ticks++;
     ticks++;
-//    print_str(cur_thread->name);
-//    print_str(" ticks ......\n");
     if (cur_thread->ticks == 0){
-//        print_str(cur_thread->name);
-//        print_str(" ticks is 0, schedule...\n");
+        print_str(cur_thread->name);
+        print_str(" ticks is 0, schedule...\n");
         schedule();
     }
     else

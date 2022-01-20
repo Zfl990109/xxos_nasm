@@ -102,6 +102,8 @@ void schedule(void){
     struct task_struct* next = elem2entry(struct task_struct, general_tag, thread_tag);
     next->status = TASK_RUNNING;
     process_activate(next);
+    print_str(next->name);
+    print_str(" will run...");
     switch_to(cur, next);
 }
 

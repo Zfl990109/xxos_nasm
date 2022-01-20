@@ -78,7 +78,6 @@ static void* apply_virtual_page(enum pool_flags pf, uint32_t pg_count){
         //TODO: 用户内存池
         struct task_struct* cur = running_thread();
         bit_idx = bitmap_scan(&cur->userprog_vaddr.virtual_bitmap, pg_count);
-        print_str("into user mem_pool\n");
         if (bit_idx == -1){
             return NULL;
         }
