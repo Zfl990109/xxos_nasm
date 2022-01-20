@@ -6,31 +6,26 @@
 #define XXOS_NASM_SYNC_H
 
 #include "../../libs/list.h"
-#include "../../libs/defs.h"
+#include "../../libs/stdint.h"
 #include "../mm/memory.h"
-//#include "thread.h"
 
-struct semaphore{
-    uint8_t value;
-    struct list waiters;
+/* 信号量结构 */
+struct semaphore {
+    uint8_t  value;
+    struct   list waiters;
 };
 
-struct lock{
-    struct task_struct* holder;
-    struct semaphore semaphore;
-    uint32_t holder_repeat_nr;
+/* 锁结构 */
+struct lock {
+    struct   task_struct* holder;	    // 锁的持有者
+    struct   semaphore semaphore;	    // 用二元信号量实现锁
+    uint32_t holder_repeat_nr;		    // 锁的持有者重复申请锁的次数
 };
 
-void init_sema(struct semaphore* psema, uint8_t value);
-
-void init_lock(struct lock* plock);
-
-void wait(struct semaphore* psema);
-
-void signal(struct semaphore* psema);
-
-void acquire_lock(struct lock* plock);
-
-void release_lock(struct lock* plock);
-
+void sema_init(struct semaphore* psema, uint8_t value);
+void sema_down(struct semaphore* psema);
+void sema_up(struct semaphore* psema);
+void lock_init(struct lock* plock);
+void lock_acquire(struct lock* plock);
+void lock_release(struct lock* plock);
 #endif //XXOS_NASM_SYNC_H

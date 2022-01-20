@@ -19,28 +19,45 @@ void kernel_thread_b(void*);
 void u_prog_a(void);
 void u_prog_b(void);
 void init_all(void);
+
+extern struct ioqueue kbd_buf;	   // 定义键盘缓冲区
 int test_var_a = 2, test_var_b = 1;
 
 int main(void){
-    reset_screen();
-    print_str("xxos_nasm is loading ...\n");
+    put_str("xxos_nasm is loading ...\n");
     init_all();
     thread_start("consumer_a", 31, kernel_thread_a, " A_");
     thread_start("consumer_b", 31, kernel_thread_b, " B_");
 //    process_execute(u_prog_a, "userprog_a");
 //    process_execute(u_prog_b, "userprog_b");
-    enable_intr();
+    intr_enable();
     while (true);
     return 0;
 }
 
 void kernel_thread_a(void* arg){
     char* para = arg;
-    while (1);
+    while (1){
+        enum intr_status old_status = intr_disable();
+        if (!ioq_empty(&kbd_buf)) {
+            char byte = ioq_getchar(&kbd_buf);
+            console_put_str(para);
+            console_put_char(byte);
+        }
+        intr_set_status(old_status);
+    }
 }
 void kernel_thread_b(void* arg){
     char* para = arg;
-    while (1);
+    while (1){
+        enum intr_status old_status = intr_disable();
+        if (!ioq_empty(&kbd_buf)) {
+            char byte = ioq_getchar(&kbd_buf);
+            console_put_str(para);
+            console_put_char(byte);
+        }
+        intr_set_status(old_status);
+    }
 }
 
 void u_prog_a(void){
@@ -59,14 +76,14 @@ void u_prog_b(void){
 
 // 初始化所有模块
 void init_all(){
-    print_str("init all modules...\n");
-    init_mem();
-    init_tss();
-    init_thread();
-    init_console();
-    init_keyboard();
-    init_intr();
-    init_timer();
+    put_str("init_all\n");
+    idt_init();	     // 初始化中断
+    mem_init();	     // 初始化内存管理系统
+    thread_init();    // 初始化线程相关结构
+    timer_init();     // 初始化PIT
+    console_init();   // 控制台初始化最好放在开中断之前
+    keyboard_init();  // 键盘初始化
+    tss_init();       // tss初始化
 }
 
 

@@ -5,19 +5,16 @@
 #ifndef XXOS_THREAD_H
 #define XXOS_THREAD_H
 
-#include "../../libs/defs.h"
+#include "../../libs/stdint.h"
 #include "../../libs/list.h"
 #include "../../libs/bitmap.h"
 #include "../mm/memory.h"
 
-#define default_prio 31
-
+/* 自定义通用函数类型,它将在很多线程函数中做为形参类型 */
 typedef void thread_func(void*);
-extern struct task_struct* main_thread;        // 主线程 PCB
-extern struct list thread_ready_list;          // 就绪队列
-extern struct list thread_all_list;            // 所有任务队列
 
-enum task_status{
+/* 进程或线程的状态 */
+enum task_status {
     TASK_RUNNING,
     TASK_READY,
     TASK_BLOCKED,
@@ -26,12 +23,18 @@ enum task_status{
     TASK_DIED
 };
 
-struct intr_stack{
-    uint32_t vector_no;
+/***********   中断栈intr_stack   ***********
+ * 此结构用于中断发生时保护程序(线程或进程)的上下文环境:
+ * 进程或线程被外部中断或软中断打断时,会按照此结构压入上下文
+ * 寄存器,  intr_exit中的出栈操作是此结构的逆操作
+ * 此栈在线程自己的内核栈中位置固定,所在页的最顶端
+********************************************/
+struct intr_stack {
+    uint32_t vec_no;	 // kernel.S 宏VECTOR中push %1压入的中断号
     uint32_t edi;
     uint32_t esi;
     uint32_t ebp;
-    uint32_t esp_dummy;
+    uint32_t esp_dummy;	 // 虽然pushad把esp也压入,但esp是不断变化的,所以会被popad忽略
     uint32_t ebx;
     uint32_t edx;
     uint32_t ecx;
@@ -41,8 +44,8 @@ struct intr_stack{
     uint32_t es;
     uint32_t ds;
 
-    // 当 cpu 从低特权级进入高特权级时压入以下信息
-    uint32_t error_code;
+/* 以下由cpu从低特权级进入高特权级时压入 */
+    uint32_t err_code;		 // err_code会被压入在eip之后
     void (*eip) (void);
     uint32_t cs;
     uint32_t eflags;
@@ -50,62 +53,65 @@ struct intr_stack{
     uint32_t ss;
 };
 
-struct thread_stack{
+/***********  线程栈thread_stack  ***********
+ * 线程自己的栈,用于存储线程中待执行的函数
+ * 此结构在线程自己的内核栈中位置不固定,
+ * 用在switch_to时保存线程环境。
+ * 实际位置取决于实际运行情况。
+ ******************************************/
+struct thread_stack {
     uint32_t ebp;
     uint32_t ebx;
     uint32_t edi;
     uint32_t esi;
 
-    // 线程第一次执行时, eip 指向待调用的函数 kernel_thread
-    // 其余时候, eip 指向 switch_to 的返回地址
+/* 线程第一次执行时,eip指向待调用的函数kernel_thread
+其它时候,eip是指向switch_to的返回地址*/
     void (*eip) (thread_func* func, void* func_arg);
 
-    // 以下信息仅供第一次被调度上 cpu 时使用
-    void (*unused_retaddr);         // 起到占位作用
-    thread_func* function;
-    void* func_arg;
+/*****   以下仅供第一次被调度上cpu时使用   ****/
+
+/* 参数unused_ret只为占位置充数为返回地址 */
+    void (*unused_retaddr);
+    thread_func* function;   // 由Kernel_thread所调用的函数名
+    void* func_arg;    // 由Kernel_thread所调用的函数所需的参数
 };
 
-struct task_struct{
-    uint32_t* self_kernel_stack;
+/* 进程或线程的pcb,程序控制块 */
+struct task_struct {
+    uint32_t* self_kstack;	 // 各内核线程都用自己的内核栈
     enum task_status status;
     char name[16];
     uint8_t priority;
-    uint8_t ticks;               // 处理器上执行的时间数
+    uint8_t ticks;	   // 每次在处理器上执行的时间嘀嗒数
 
-    uint32_t elapsed_ticks;      // 此任务已经执行的时间数
-    struct list_elem general_tag;   // 在线程队列中的结点
-    struct list_elem all_list_tag;   // 在线程队列中的所有
+/* 此任务自上cpu运行后至今占用了多少cpu嘀嗒数,
+ * 也就是此任务执行了多久*/
+    uint32_t elapsed_ticks;
 
-    uint32_t* pgdir;            // 进程页表的虚拟地址
-    struct virtual_addr userprog_vaddr;     // 用户进程的虚拟地址
-    uint32_t stack_magic;        // 栈的边界标记, 用于检测栈的溢出
+/* general_tag的作用是用于线程在一般的队列中的结点 */
+    struct list_elem general_tag;
+
+/* all_list_tag的作用是用于线程队列thread_all_list中的结点 */
+    struct list_elem all_list_tag;
+
+    uint32_t* pgdir;              // 进程自己页表的虚拟地址
+
+    struct virtual_addr userprog_vaddr;   // 用户进程的虚拟地址
+    uint32_t stack_magic;	 // 用这串数字做栈的边界标记,用于检测栈的溢出
 };
 
 
-// 获取当前线程的 PCB 指针
-struct task_struct* running_thread();
+extern struct list thread_ready_list;
+extern struct list thread_all_list;
 
-
-// 由 kernel_thread 执行 function(func_arg)
-static void kernel_thread(thread_func* function, void* func_arg);
-
-// 初始化线程栈 thread_stack, 将待执行的函数和参数放到 thread_stack 中的相应位置
 void thread_create(struct task_struct* pthread, thread_func function, void* func_arg);
-
-// 初始化线程基本信息
-void thread_init(struct task_struct* pthread, char* name, int prio);
-
+void init_thread(struct task_struct* pthread, char* name, int prio);
 struct task_struct* thread_start(char* name, int prio, thread_func function, void* func_arg);
-
-void thread_block(enum task_status status);
-
-void thread_unblock(struct task_struct* pthread);
-
+struct task_struct* running_thread(void);
 void schedule(void);
-
-static void make_main_thread(void);
-
-void init_thread(void);
+void thread_init(void);
+void thread_block(enum task_status stat);
+void thread_unblock(struct task_struct* pthread);
 
 #endif //XXOS_THREAD_H

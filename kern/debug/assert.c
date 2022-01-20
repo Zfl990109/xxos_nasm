@@ -6,13 +6,18 @@
 #include "../../libs/print.h"
 #include "../trap/interrupt.h"
 
-void panic_spin(char* filename, int line, const char* func, const char*condition){
-    disable_intr();
-    print_str("\n\n\n***************** error ********************\n");
-    print_str("filename: ");print_str(filename);print_str("\n");
-    print_str("line: 0x");print_int(line);print_str("\n");
-    print_str("function: ");print_str((char *)func);print_str("\n");
-    print_str("condition: ");print_str((char*)condition);print_str("\n");
-    print_str("***************** error ********************\n");
-    while (1);
+
+/* 打印文件名,行号,函数名,条件并使程序悬停 */
+void panic_spin(char* filename,	       \
+	        int line,	       \
+		const char* func,      \
+		const char* condition) \
+{
+    intr_disable();	// 因为有时候会单独调用panic_spin,所以在此处关中断。
+    put_str("\n\n\n!!!!! error !!!!!\n");
+    put_str("filename:");put_str(filename);put_str("\n");
+    put_str("line:0x");put_int(line);put_str("\n");
+    put_str("function:");put_str((char*)func);put_str("\n");
+    put_str("condition:");put_str((char*)condition);put_str("\n");
+    while(1);
 }
