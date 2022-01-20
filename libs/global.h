@@ -41,7 +41,7 @@
 #define KERNEL_VIDEO    ((3 << 3) + (TI_GDT << 2) + RPL0)
 #define TSS             ((4 << 3) + (TI_GDT << 2) + RPL0)
 #define USER_CODE       ((5 << 3) + (TI_GDT << 2) + RPL3)
-#define USER_DATA       ((6 << 3) + (TI_GDT << 2) + RPL4)
+#define USER_DATA       ((6 << 3) + (TI_GDT << 2) + RPL3)
 #define USER_STACK      USER_DATA
 
 #define GDT_ATTR_HIGH       \
@@ -79,6 +79,13 @@ struct gdt_desc{
     uint8_t limit_high_attr_high;
     uint8_t base_high_byte;
 };
+
+#define EFLAGS_MBS      (1 << 1)
+#define EFLAGS_IF_1     (1 << 9)
+#define EFLAGS_IF_0     0
+#define EFLAGS_IOPL_3   (3 << 12)
+#define EFLAGS_IOPL_0   (0 << 12)
+#define DIV_ROUND_UP(X, STEP) ((X + STEP - 1) / (STEP))
 
 
 #endif //XXOS_GLOBAL_H

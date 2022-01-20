@@ -5,8 +5,8 @@
 #include "console.h"
 #include "../../libs/print.h"
 #include "../../libs/defs.h"
-#include "../process/sync.h"
 #include "../process/thread.h"
+#include "../process/sync.h"
 static struct lock console_lock;
 
 void init_console(){

@@ -7,9 +7,15 @@
 
 #include "../../libs/defs.h"
 #include "../../libs/list.h"
+#include "../../libs/bitmap.h"
 #include "../mm/memory.h"
 
+#define default_prio 31
+
 typedef void thread_func(void*);
+extern struct task_struct* main_thread;        // 主线程 PCB
+extern struct list thread_ready_list;          // 就绪队列
+extern struct list thread_all_list;            // 所有任务队列
 
 enum task_status{
     TASK_RUNNING,
@@ -72,10 +78,9 @@ struct task_struct{
     struct list_elem all_list_tag;   // 在线程队列中的所有
 
     uint32_t* pgdir;            // 进程页表的虚拟地址
-    struct virtual_addr* userprog_vaddr;     // 用户进程的虚拟地址
+    struct virtual_addr userprog_vaddr;     // 用户进程的虚拟地址
     uint32_t stack_magic;        // 栈的边界标记, 用于检测栈的溢出
 };
-
 
 
 // 获取当前线程的 PCB 指针

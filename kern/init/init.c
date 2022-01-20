@@ -11,26 +11,25 @@
 #include "../../libs/string.h"
 #include "../process/thread.h"
 #include "../process/tss.h"
+#include "../process/userprog.h"
 #include "../device/console.h"
 
 void kernel_thread_a(void*);
 void kernel_thread_b(void*);
+void u_prog_a(void);
+void u_prog_b(void);
 void init_all(void);
+int test_var_a = 0, test_var_b = 1;
 
 int main(void){
     reset_screen();
     print_str("xxos_nasm is loading ...\n");
     init_all();
-//    ASSERT(strcmp("bbb", "bbb"));
-//    void* addr = apply_kernel_pages(3);
     thread_start("consumer_a", 31, kernel_thread_a, " A_");
     thread_start("consumer_b", 31, kernel_thread_b, " B_");
+//    process_execute(u_prog_a, "userprog_a");
+//    process_execute(u_prog_b, "userprog_b");
     enable_intr();
-//    asm volatile("sti");
-    //TODO:分页处理
-//    int i = 100000;
-//    while (i--){}
-//    asm volatile("cli");
     while (true);
     return 0;
 }
@@ -39,12 +38,14 @@ void kernel_thread_a(void* arg){
     char* para = arg;
     while (1){
         enum intr_status old_status = disable_intr();
-        if (!ioq_empty(&kbd_buf)){
+        if (!ioq_empty(&kbd_buf)) {
             console_print_str(para);
             char byte = ioq_getchar(&kbd_buf);
             console_print_char(byte);
         }
         set_intr_status(old_status);
+//        console_print_str("    v_a:0x");
+//        console_print_int(test_var_a);
     }
 //    print_str(para);
 }
@@ -52,14 +53,28 @@ void kernel_thread_b(void* arg){
     char* para = arg;
     while (1){
         enum intr_status old_status = disable_intr();
-        if (!ioq_empty(&kbd_buf)){
+        if (!ioq_empty(&kbd_buf)) {
             console_print_str(para);
             char byte = ioq_getchar(&kbd_buf);
             console_print_char(byte);
         }
         set_intr_status(old_status);
+//        console_print_str("    v_b:0x");
+//        console_print_int(test_var_b);
     }
 //    print_str(para);
+}
+
+void u_prog_a(void){
+    while (true){
+        test_var_a++;
+    }
+}
+
+void u_prog_b(void){
+    while (true){
+        test_var_b++;
+    }
 }
 
 // 初始化所有模块

@@ -3,6 +3,7 @@
 //
 
 #include "thread.h"
+#include "userprog.h"
 #include "../../libs/defs.h"
 #include "../../libs/string.h"
 #include "../../libs/global.h"
@@ -11,6 +12,7 @@
 #include "../debug/assert.h"
 #include "../trap/interrupt.h"
 #include "../../libs/list.h"
+
 
 struct task_struct* main_thread;        // 主线程 PCB
 struct list thread_ready_list;          // 就绪队列
@@ -99,6 +101,7 @@ void schedule(void){
     thread_tag = list_pop(&thread_ready_list);
     struct task_struct* next = elem2entry(struct task_struct, general_tag, thread_tag);
     next->status = TASK_RUNNING;
+    process_activate(next);
     switch_to(cur, next);
 }
 

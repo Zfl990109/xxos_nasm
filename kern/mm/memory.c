@@ -6,6 +6,7 @@
 #include "../../libs/print.h"
 #include "../debug/assert.h"
 #include "../../libs/string.h"
+#include "../process/thread.h"
 
 #define PDE_IDX(addr) ((addr & 0xffc00000) >> 22)
 #define PTE_IDX(addr) ((addr & 0x003ff000) >> 12)
@@ -76,14 +77,15 @@ static void* apply_virtual_page(enum pool_flags pf, uint32_t pg_count){
     }else{
         //TODO: 用户内存池
         struct task_struct* cur = running_thread();
-        bit_idx = bitmap_scan(&cur->userprog_vaddr->virtual_bitmap, pg_count);
+        bit_idx = bitmap_scan(&cur->userprog_vaddr.virtual_bitmap, pg_count);
+        print_str("into user mem_pool\n");
         if (bit_idx == -1){
             return NULL;
         }
         while (count < pg_count){
-            bitmap_set(&cur->userprog_vaddr->virtual_bitmap, bit_idx + count++, 1);
+            bitmap_set(&cur->userprog_vaddr.virtual_bitmap, bit_idx + count++, 1);
         }
-        vaddr_start = cur->userprog_vaddr->vaddr_start + bit_idx * PG_SIZE;
+        vaddr_start = cur->userprog_vaddr.vaddr_start + bit_idx * PG_SIZE;
         ASSERT((uint32_t)vaddr_start < (0xc0000000 - PG_SIZE));
     }
     return (void*) vaddr_start;
@@ -177,9 +179,9 @@ void* bind_page_vaddr(enum pool_flags pf, uint32_t vaddr){
     struct task_struct* cur = running_thread();
     int32_t bit_idx = -1;
     if (cur->pgdir != NULL && pf == PF_USER){
-        bit_idx = (vaddr - cur->userprog_vaddr->vaddr_start) / PG_SIZE;
+        bit_idx = (vaddr - cur->userprog_vaddr.vaddr_start) / PG_SIZE;
         ASSERT(bit_idx > 0);
-        bitmap_set(&cur->userprog_vaddr->virtual_bitmap, bit_idx, 1);
+        bitmap_set(&cur->userprog_vaddr.virtual_bitmap, bit_idx, 1);
     } else if (cur->pgdir == NULL && pf == PF_KERNEL){
         bit_idx = (vaddr - kernel_vaddr.vaddr_start) / PG_SIZE;
         ASSERT(bit_idx > 0);

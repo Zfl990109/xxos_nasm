@@ -178,21 +178,17 @@ print_char:
 
 .roll_screen:
     cld
-    mov ax, select_data
-    mov es, ax
-    mov di, es
-    mov ecx, 920
+    mov ecx, 960
     mov esi, 0xb80a0
     mov edi, 0xb8000
     rep movsd
 
     mov ebx, 3840
     mov ecx, 80
-    mov esi, 0
 
 .clean_last_row:
-    mov word [ebx + esi * 2], 0x0720
-    inc esi
+    mov word [gs:ebx], 0x0720
+    add ebx, 2
     loop .clean_last_row
     mov ebx, 1920
 .set_cursor:

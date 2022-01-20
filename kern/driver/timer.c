@@ -23,8 +23,13 @@ static void intr_time_func(void){
     ASSERT(cur_thread->stack_magic == 0x19990109);
     cur_thread->elapsed_ticks++;
     ticks++;
-    if (cur_thread->ticks == 0)
+//    print_str(cur_thread->name);
+//    print_str(" ticks ......\n");
+    if (cur_thread->ticks == 0){
+//        print_str(cur_thread->name);
+//        print_str(" ticks is 0, schedule...\n");
         schedule();
+    }
     else
         cur_thread->ticks--;
 }

@@ -7,7 +7,8 @@
 
 #include "../../libs/list.h"
 #include "../../libs/defs.h"
-#include "thread.h"
+#include "../mm/memory.h"
+//#include "thread.h"
 
 struct semaphore{
     uint8_t value;

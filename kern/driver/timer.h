@@ -18,7 +18,6 @@
 static void set_frequency(uint8_t counter_port, uint8_t counter_no,
                           uint8_t rwl, uint8_t counter_mode, uint16_t counter_value);
 
-
 static void intr_time_func(void);
 
 void init_timer(void);
