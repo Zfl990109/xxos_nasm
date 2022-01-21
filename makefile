@@ -14,7 +14,9 @@ OBJS = $(BUILD_DIR)/main.o $(BUILD_DIR)/init.o $(BUILD_DIR)/interrupt.o \
       $(BUILD_DIR)/string.o $(BUILD_DIR)/thread.o $(BUILD_DIR)/list.o \
       $(BUILD_DIR)/switch.o $(BUILD_DIR)/console.o $(BUILD_DIR)/sync.o \
       $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/ioqueue.o $(BUILD_DIR)/tss.o \
-      $(BUILD_DIR)/process.o
+      $(BUILD_DIR)/process.o $(BUILD_DIR)/syscall_init.o $(BUILD_DIR)/syscall.o
+
+all: mk_dir build hd run
 
 ##############     c代码编译     ###############
 $(BUILD_DIR)/main.o: kernel/main.c lib/kernel/print.h \
@@ -93,8 +95,12 @@ $(BUILD_DIR)/process.o: userprog/process.c userprog/process.h thread/thread.h \
       	lib/string.h lib/stdint.h
 	$(CC) $(CFLAGS) $< -o $@
 
+$(BUILD_DIR)/syscall_init.o: userprog/syscall_init.c userprog/syscall_init.h thread/thread.h \
+    	lib/stdint.h lib/kernel/print.h
+	$(CC) $(CFLAGS) $< -o $@
 
-
+$(BUILD_DIR)/syscall.o: lib/user/syscall.c lib/user/syscall.h lib/stdint.h
+	$(CC) $(CFLAGS) $< -o $@
 
 
 ##############    汇编代码编译    ###############
@@ -131,8 +137,6 @@ mbr:
 	nasm -Iboot/include -o mbr.bin boot/mbr.S && dd if=mbr.bin of=xxos.img bs=512 count=1  conv=notrunc
 loader:
 	nasm -Iboot/include -o loader.bin boot/loader.S && dd if=loader.bin of=xxos.img bs=512 count=4 seek=2 conv=notrunc
-
-all: mk_dir build hd
 
 run:
 	bochs -f bochsrc

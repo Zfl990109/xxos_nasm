@@ -92,7 +92,7 @@ put_char:
    shl bx, 1				  ; 光标位置是用2字节表示,将光标值乘2,表示对应显存中的偏移字节
    mov [gs:bx], cl			  ; ascii字符本身
    inc bx
-   mov byte [gs:bx],0x07		  ; 字符属性
+   mov byte [gs:bx],0x0b		  ; 字符属性
    shr bx, 1				  ; 恢复老的光标值
    inc bx				  ; 下一个光标值
    cmp bx, 2000		   
