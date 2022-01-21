@@ -4,10 +4,10 @@
 
 #ifndef B_SYSCALL_INIT_H
 #define B_SYSCALL_INIT_H
-// 返回当前任务的 pid
-uint32_t sys_getpid(void);
 
-// 初始化系统调用
+#include "../lib/stdint.h"
 void syscall_init(void);
+uint32_t sys_getpid(void);
+uint32_t sys_write(char* str);
 
 #endif //B_SYSCALL_INIT_H
