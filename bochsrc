@@ -1,0 +1,19 @@
+megs: 32
+
+romimage: file=$BXSHARE/BIOS-bochs-legacy
+vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
+
+
+# hard disk
+ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
+ata0-master: type=disk, path="xxos.img", mode=flat, cylinders=65, heads=16, spt=63
+
+boot: c
+
+
+display_library: x, options="gui_debug"
+
+mouse: enabled=0
+
+
+keyboard: keymap=$BXSHARE/keymaps/x11-pc-us.map
